@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+venv/
+.venv/
+env/
+
+.DS_Store
+
+# Data should not be committed (keep the folder via data/.gitkeep)
+data/*
+!data/.gitkeep
+
+# Models should not be committed (keep the folder via models/.gitkeep)
+models/*
+!models/.gitkeep
+

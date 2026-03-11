@@ -66,11 +66,16 @@ We welcome contributions! Feel free to open an issue or submit a pull request to
 
 ## Project Structure
 
-- `main.py`: Server and API endpoints
-- `single_person_processor.py`: Core measurement logic
-- `best_model.keras`: Measurement model
-- `static/`: Web interface files
-- `template.html`: Web page template
+- `main.py`: Server launcher (kept for convenience)
+- `ai_body_measurement/`: Python package
+  - `api.py`: FastAPI app + API endpoints
+  - `predictor.py`: Core measurement logic
+- `models/`: Trained models (local; ignored by git)
+- `web/`: Web UI assets
+  - `template.html`: Web page template
+  - `static/`: Static files (optional)
+- `notebooks/`: Jupyter notebooks (training/experiments)
+- `data/`: Local datasets / inputs (kept in git via `data/.gitkeep`)
 
 ## API Endpoints
 
@@ -80,6 +85,14 @@ We welcome contributions! Feel free to open an issue or submit a pull request to
     - front_image: Front view image
     - side_image: Side view image
     - input_data: JSON string containing gender, height, weight, and apparel type
+
+## Alternative Run Command
+
+You can also run directly with Uvicorn:
+
+```bash
+uvicorn ai_body_measurement.api:app --host 0.0.0.0 --port 8000
+```
 
 ## Rights and License
 

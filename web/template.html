@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Body Measurement System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4CAF50', 
+            secondary: '#212121', 
+            accent: '#76C7A1', 
+            background: '#212121', 
+            lightBackground: '#FFFFFF', 
+            lightAccent: '#76C7A1' 
+          },
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    .loading {
+      display: none;
+    }
+    .loading.active {
+      display: flex;
+    }
+    .preview-image {
+      max-width: 200px;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 1rem;
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .preview-image:hover {
+      transform: scale(1.08);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .loading-bar {
+      width: 100%;
+      height: 10px;
+      background: #f3f4f6;
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .loading-bar span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      background-color: #4CAF50;
+      animation: loading 3s infinite;
+    }
+
+    @keyframes loading {
+      0% { width: 0%; }
+      50% { width: 50%; }
+      100% { width: 100%; }
+    }
+
+    /* تنسيق الناتج المطبوع */
+    .result-container {
+      background-color: #fff;
+      color: #212121;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      font-family: 'Poppins', sans-serif;
+    }
+    .result-container h3 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+    .result-container .item {
+      font-size: 1rem;
+      margin: 5px 0;
+    }
+    .result-container .item span {
+      font-weight: 600;
+    }
+    .result-container .item .value {
+      color: #76C7A1;
+    }
+  </style>
+</head>
+<body class="bg-background dark:bg-background min-h-screen flex items-center justify-center p-5 transition-all duration-500">
+  <div class="relative w-full max-w-2xl">
+    <!-- Toggle Button -->
+    <button onclick="toggleDarkMode()" class="absolute top-2 right-2 bg-primary hover:bg-secondary text-white px-4 py-2 rounded-full shadow-md transition-all duration-300 flex items-center gap-2">
+      <i id="toggleIcon" class="fas fa-sun"></i>
+    </button>
+
+    <div class="bg-white dark:bg-background shadow-2xl rounded-3xl p-10 transition-all duration-500">
+      <h2 class="text-4xl font-bold mb-8 text-center text-gray-800 dark:text-white animate-pulse">AI Body Measurement</h2>
+      
+      <form id="predictForm" enctype="multipart/form-data" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="block text-gray-600 dark:text-gray-300">Front Image:</label>
+            <input type="file" name="front_image" accept="image/jpeg,image/png" required class="w-full border-2 border-accent rounded-xl p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" onchange="previewImage(this, 'frontPreview')">
+            <img id="frontPreview" class="preview-image mt-3 hidden">
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-gray-600 dark:text-gray-300">Side Image:</label>
+            <input type="file" name="side_image" accept="image/jpeg,image/png" required class="w-full border-2 border-accent rounded-xl p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" onchange="previewImage(this, 'sidePreview')">
+            <img id="sidePreview" class="preview-image mt-3 hidden">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="block text-gray-600 dark:text-gray-300">Gender:</label>
+            <select name="gender" required class="w-full border-2 border-accent rounded-xl p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200">
+              <option value="0">Male</option>
+              <option value="1">Female</option>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-gray-600 dark:text-gray-300">Apparel Type:</label>
+            <select name="apparel_type" class="w-full border-2 border-accent rounded-xl p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200">
+              <option value="all">All</option>
+              <option value="tshirt">T-shirt</option>
+              <option value="pants">Pants</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="block text-gray-600 dark:text-gray-300">Height (cm):</label>
+            <input type="number" name="height_cm" step="0.1" required class="w-full border-2 border-accent rounded-xl p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" min="100" max="250">
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-gray-600 dark:text-gray-300">Weight (kg):</label>
+            <input type="number" name="weight_kg" step="0.1" required class="w-full border-2 border-accent rounded-xl p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" min="30" max="200">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-primary hover:bg-secondary text-white font-bold py-4 rounded-xl mt-8 shadow-lg transition-all duration-500 transform hover:scale-105">
+          <i class="fas fa-ruler-combined mr-2"></i> Predict Measurements
+        </button>
+      </form>
+
+      <div id="loading" class="loading items-center justify-center mt-6">
+        <div class="loading-bar"><span></span></div>
+        <span class="ml-4 text-gray-600 dark:text-gray-300 font-medium">Processing...</span>
+      </div>
+
+      <div id="errorContainer" class="mt-6 hidden">
+        <div class="bg-red-100 dark:bg-red-400 border-l-4 border-red-500 text-red-700 dark:text-red-900 p-4 rounded-lg flex items-center gap-2">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span id="errorMessage"></span>
+        </div>
+      </div>
+
+      <div id="resultContainer" class="mt-8 hidden">
+        <div class="result-container">
+          <h3>Measurement Results:</h3>
+          <div id="result" class="space-y-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('predictForm');
+    const resultContainer = document.getElementById('resultContainer');
+    const resultDiv = document.getElementById('result');
+    const loading = document.getElementById('loading');
+    const errorContainer = document.getElementById('errorContainer');
+    const errorMessage = document.getElementById('errorMessage');
+    const toggleIcon = document.getElementById('toggleIcon');
+
+    function previewImage(input, previewId) {
+      const preview = document.getElementById(previewId);
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.classList.remove('hidden');
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorContainer.classList.remove('hidden');
+      resultContainer.classList.add('hidden');
+    }
+
+    function hideError() {
+      errorContainer.classList.add('hidden');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+      loading.classList.add('active');
+      resultContainer.classList.add('hidden');
+
+      const formData = new FormData(form);
+      const inputData = {
+        gender: parseInt(formData.get('gender')),
+        height_cm: parseFloat(formData.get('height_cm')),
+        weight_kg: parseFloat(formData.get('weight_kg')),
+        apparel_type: formData.get('apparel_type')
+      };
+
+      formData.append('input_data', JSON.stringify(inputData));
+
+      try {
+        const response = await fetch('/predict/', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.error) {
+          showError(result.error);
+        } else {
+          resultContainer.classList.remove('hidden');
+          resultDiv.innerHTML = formatResults(result.results);
+        }
+      } catch (error) {
+        showError('Failed to connect to the server. Please try again.');
+      } finally {
+        loading.classList.remove('active');
+      }
+    });
+
+    function formatResults(results) {
+  let html = '';
+  const apparelType = document.querySelector('select[name="apparel_type"]').value; // نجيب نوع الملابس
+
+  if (apparelType === 'all') {
+    if (results.body_measurements) {
+      html += `<div class="item"><span>Body Measurements:</span><ul>`;
+      for (const [key, value] of Object.entries(results.body_measurements)) {
+        html += `<li><span>${key.replace(/-/g, ' ')}:</span> <span class="value">${value}</span></li>`;
+      }
+      html += `</ul></div>`;
+    }
+
+    if (results.tshirt_size) {
+      html += `<div class="item"><span>T-shirt Size:</span> <span class="value">${results.tshirt_size}</span></div>`;
+    }
+
+    if (results.pants_size) {
+      html += `<div class="item"><span>Pants Size:</span> <span class="value">${results.pants_size}</span></div>`;
+    }
+  } 
+  
+  else if (apparelType === 'tshirt') {
+    if (results.tshirt_size) {
+      html += `<div class="item"><span>T-shirt Size:</span> <span class="value">${results.tshirt_size}</span></div>`;
+    }
+
+    if (results.upper_body_measurements) {
+      html += `<div class="item"><span>Upper Body Measurements:</span><ul>`;
+      for (const [key, value] of Object.entries(results.upper_body_measurements)) {
+        html += `<li><span>${key.replace(/-/g, ' ')}:</span> <span class="value">${value}</span></li>`;
+      }
+      html += `</ul></div>`;
+    }
+  } 
+  
+  else if (apparelType === 'pants') {
+    if (results.pants_size) {
+      html += `<div class="item"><span>Pants Size:</span> <span class="value">${results.pants_size}</span></div>`;
+    }
+
+    if (results.lower_body_measurements) {
+      html += `<div class="item"><span>Lower Body Measurements:</span><ul>`;
+      for (const [key, value] of Object.entries(results.lower_body_measurements)) {
+        html += `<li><span>${key.replace(/-/g, ' ')}:</span> <span class="value">${value}</span></li>`;
+      }
+      html += `</ul></div>`;
+    }
+  }
+
+  return html;
+}
+
+
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      toggleIcon.classList.toggle('fa-sun');
+      toggleIcon.classList.toggle('fa-moon');
+    }
+  </script>
+</body>
+</html>
