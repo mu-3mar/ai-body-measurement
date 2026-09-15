@@ -1,23 +1,40 @@
+# Python cache / compiled files
 __pycache__/
 *.py[cod]
-*.pyd
 *.pyo
+*.pyd
+*$py.class
+*.so
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Testing / tooling cache
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .cache/
 
+# Virtual environments
 venv/
 .venv/
 env/
+ENV/
 
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*~
 .DS_Store
+Thumbs.db
 
-# Data should not be committed (keep the folder via data/.gitkeep)
-data/*
-!data/.gitkeep
+# Logs / temporary files
+*.log
+temp.html
 
-# Models should not be committed (keep the folder via models/.gitkeep)
-models/*
-!models/.gitkeep
-
+# Secrets / local environment
+.env
+.env.*
+!.env.example
+*.pem
