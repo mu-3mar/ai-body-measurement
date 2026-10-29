@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-body-measurement"
+version = "1.0.0"
+description = "Estimate body measurements and clothing sizes from front and side photos."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "Muhammad Ammar" }]
+keywords = ["computer-vision", "body-measurement", "fastapi", "keras"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Framework :: FastAPI",
+]
+dependencies = [
+  "fastapi>=0.104",
+  "uvicorn>=0.24",
+  "python-multipart>=0.0.6",
+  "numpy>=1.24",
+  "Pillow>=10.1",
+]
+
+[project.optional-dependencies]
+inference = [
+  "tensorflow>=2.15",
+  "rembg>=2.0.50",
+]
+
+[project.urls]
+Homepage = "https://github.com/mu-3mar/ai-body-measurement"
+
+[project.scripts]
+ai-body-measurement = "ai_body_measurement.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["ai_body_measurement*"]

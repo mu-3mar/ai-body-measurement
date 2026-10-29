@@ -1,19 +1,25 @@
-# Python cache / compiled files
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 *$py.class
 *.so
+*.egg-info/
+.eggs/
+dist/
+build/
 
 # Jupyter
 .ipynb_checkpoints/
 
-# Testing / tooling cache
+# Testing / tooling
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .cache/
+.coverage
+htmlcov/
 
 # Virtual environments
 venv/
@@ -32,9 +38,17 @@ Thumbs.db
 # Logs / temporary files
 *.log
 temp.html
+uploads/
+tmp/
 
 # Secrets / local environment
 .env
 .env.*
 !.env.example
 *.pem
+
+# Local datasets and training artifacts
+dataset/
+data/*
+checkpoints/
+*.h5

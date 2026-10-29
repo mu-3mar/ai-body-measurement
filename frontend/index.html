@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#FFF8F5">
+  <title>BodyMeasure — AI Body Measurement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page">
+    <header class="brand-bar">
+      <a class="brand" href="#top" aria-label="BodyMeasure home">
+        <span class="brand-mark">
+          <iframe
+            class="brand-logo-frame"
+            src="./logo-animated.html?color=%23F04B24&amp;v=2"
+            title="Animated brand logo"
+            aria-label="Animated brand logo"
+            tabindex="-1"
+          ></iframe>
+        </span>
+        <span>
+          <strong>BodyMeasure</strong>
+          <small>AI BODY MEASUREMENT</small>
+        </span>
+      </a>
+      <div class="api-pill" aria-live="polite">
+        <span class="live-dot"></span>
+        <span id="api-status">Checking API…</span>
+      </div>
+    </header>
+
+    <section class="intro" id="top">
+      <p class="eyebrow">COMPUTER VISION · LOCAL DEMO</p>
+      <h1>Estimate body <em>measurements</em> from two photos.</h1>
+      <p class="intro-copy">
+        Upload a front and side view, then enter height, weight, and gender.
+        A Keras model predicts 14 body measurements and maps them to simple clothing sizes.
+      </p>
+    </section>
+
+    <div class="notice">
+      <span>i</span>
+      <p>
+        <strong>Demo only.</strong>
+        These are model estimates from silhouettes, not tailor-grade measurements.
+        Use them for exploration, not for medical, manufacturing, or production sizing decisions.
+      </p>
+    </div>
+
+    <form id="prediction-form" novalidate>
+      <section class="form-card">
+        <div class="card-heading">
+          <div>
+            <span class="step">01</span>
+            <h2>Photos</h2>
+          </div>
+          <p>Front and side</p>
+        </div>
+        <div class="upload-grid">
+          <label class="upload-card">
+            <span>Front view</span>
+            <small>JPEG or PNG. Stand straight, full body in frame.</small>
+            <input id="front_image" name="front_image" type="file" accept="image/jpeg,image/png" required>
+            <img id="frontPreview" class="preview-image" alt="Front photo preview">
+          </label>
+          <label class="upload-card">
+            <span>Side view</span>
+            <small>JPEG or PNG. Same stance, captured from the side.</small>
+            <input id="side_image" name="side_image" type="file" accept="image/jpeg,image/png" required>
+            <img id="sidePreview" class="preview-image" alt="Side photo preview">
+          </label>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="card-heading">
+          <div>
+            <span class="step">02</span>
+            <h2>About you</h2>
+          </div>
+          <p>Model metadata</p>
+        </div>
+        <div class="field-grid">
+          <fieldset class="field sex-field">
+            <legend>Gender</legend>
+            <div class="sex-options" role="radiogroup" aria-label="Gender">
+              <label class="sex-option">
+                <input type="radio" name="gender" value="0" checked>
+                <span>Male</span>
+              </label>
+              <label class="sex-option">
+                <input type="radio" name="gender" value="1">
+                <span>Female</span>
+              </label>
+            </div>
+            <small>Encoded as 0 (male) or 1 (female) for the model.</small>
+          </fieldset>
+          <fieldset class="field apparel-field">
+            <legend>Apparel type</legend>
+            <div class="apparel-options" role="radiogroup" aria-label="Apparel type">
+              <label class="apparel-option">
+                <input type="radio" name="apparel_type" value="all" checked>
+                <span>All</span>
+              </label>
+              <label class="apparel-option">
+                <input type="radio" name="apparel_type" value="tshirt">
+                <span>T-shirt</span>
+              </label>
+              <label class="apparel-option">
+                <input type="radio" name="apparel_type" value="pants">
+                <span>Pants</span>
+              </label>
+            </div>
+          </fieldset>
+          <label class="field">
+            <span>Height (cm)</span>
+            <input name="height_cm" type="number" min="100" max="250" step="0.1" value="175" required>
+            <small>Allowed range: 100–250 cm</small>
+          </label>
+          <label class="field">
+            <span>Weight (kg)</span>
+            <input name="weight_kg" type="number" min="30" max="300" step="0.1" value="70" required>
+            <small>Allowed range: 30–300 kg</small>
+          </label>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <button type="button" class="reset-button" id="reset-form">Reset</button>
+        <span>2 photos · local Keras model</span>
+        <button type="submit" class="primary-button" id="submit-button">
+          Measure <span>↗</span>
+        </button>
+      </div>
+    </form>
+
+    <section class="result-card" id="result-panel" aria-live="polite">
+      <div class="result-top">
+        <span class="result-icon result-symbol">↗</span>
+        <div>
+          <p class="eyebrow">YOUR RESULT</p>
+          <h2 id="result-title">Measurement estimates will appear here.</h2>
+        </div>
+      </div>
+      <p id="result-summary">Upload both views, enter your details, then select “Measure”.</p>
+      <div id="size-row" class="size-row" hidden></div>
+      <div id="measure-grid" class="measure-grid" hidden></div>
+      <div class="probability-block" id="progress-block" hidden>
+        <div class="probability-label">
+          <span>Processing</span>
+          <strong id="progress-label">Removing background and running the model…</strong>
+        </div>
+        <div class="meter is-busy" id="progress-meter"><span></span></div>
+      </div>
+      <div class="error-message" id="error-message" role="alert" hidden></div>
+      <p class="result-disclaimer">
+        Sizes come from simple chest/shoulder and waist/hip charts, not brand-specific grading.
+      </p>
+    </section>
+
+    <footer class="site-footer">
+      <span class="footer-project">BODYMEASURE · AI BODY MEASUREMENT</span>
+      <span class="footer-credit">Designed &amp; built by <strong>Muhammad Ammar</strong></span>
+    </footer>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>

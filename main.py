@@ -1,5 +1,15 @@
-from ai_body_measurement.api import app
+"""Convenience launcher for the local demo server."""
+
+from __future__ import annotations
+
+import uvicorn
+
+from ai_body_measurement.config import HOST, PORT
+
+
+def main() -> None:
+    uvicorn.run("ai_body_measurement.api:app", host=HOST, port=PORT)
+
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    main()
