@@ -48,7 +48,5 @@ tmp/
 *.pem
 
 # Local datasets and training artifacts
-dataset/
-data/*
 checkpoints/
 *.h5
